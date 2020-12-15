@@ -1,7 +1,7 @@
 from db.user_db import UserInDB
 from db.user_db import update_user, get_user
 from db.transaction_db import TransactionInDB
-from db.transaction_db import save_transaction
+from db.transaction_db import save_transaction, get_transactions
 from models.user_models import UserIn, UserOut
 from models.transaction_models import TransactionIn, TransactionOut
 
@@ -25,6 +25,16 @@ mi_app.add_middleware(
 async def root():
     return {"message" : "Hola mundo desde Heroku"}
 
+@mi_app.get("/user/transactions/{username}")
+async def list_transactions(username: str):
+    transactions_in_db = get_transactions(username)
+    transactions_out = []
+    for t in transactions_in_db:
+        t_out = TransactionOut(**t.dict())
+        transactions_out.append(t_out)
+    
+    return transactions_out
+    
 
 @mi_app.post("/user/auth/")
 async def auth_user(user_in: UserIn):
